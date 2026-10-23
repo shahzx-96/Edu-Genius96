@@ -15,6 +15,8 @@ import {
   BookOpen,
   ChevronRight,
   TrendingUp,
+  WifiOff,
+  Database,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { DemoModeBanner } from '../common/DemoModeBanner';
@@ -31,6 +33,8 @@ export const HomeDashboard: React.FC = () => {
     tasks,
     toggleTaskCompletion,
     language,
+    isOnline,
+    cachedMaterials,
   } = useApp();
 
   const [quickInput, setQuickInput] = useState('');
@@ -173,6 +177,37 @@ export const HomeDashboard: React.FC = () => {
 
       {/* Demo Mode Notice Banner */}
       <DemoModeBanner />
+
+      {/* Offline Mode Alert Banner (IndexedDB Caching Active) */}
+      {!isOnline && (
+        <div className="px-4">
+          <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-900 dark:text-amber-200 flex items-start gap-3 shadow-xs">
+            <div className="p-2 rounded-xl bg-amber-500/20 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5">
+              <WifiOff className="w-4 h-4" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center justify-between gap-2">
+                <span className="font-bold text-xs tracking-tight text-amber-900 dark:text-amber-100">
+                  Offline Study Mode Active
+                </span>
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/20 font-bold text-amber-800 dark:text-amber-300 shrink-0 flex items-center gap-1">
+                  <Database className="w-3 h-3" /> IndexedDB
+                </span>
+              </div>
+              <p className="text-[11px] text-amber-800/90 dark:text-amber-300/80 mt-1 leading-relaxed">
+                You are currently offline. All your {cachedMaterials.length} cached study notes, exam answers, and summaries are available without an internet connection.
+              </p>
+              <button
+                type="button"
+                onClick={() => setActiveTab('saved')}
+                className="mt-2.5 inline-flex items-center gap-1 text-[11px] font-bold text-purple-700 dark:text-purple-300 hover:text-purple-800 dark:hover:text-purple-200 transition-colors"
+              >
+                Browse {cachedMaterials.length} Cached Materials in Saved →
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Quick "Ask AI" Input Bar */}
       <div className="px-4">

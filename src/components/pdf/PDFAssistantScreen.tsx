@@ -5,7 +5,7 @@ import { queryPdfAssistant } from '../../services/api';
 import { LatexRenderer } from '../common/LatexRenderer';
 
 export const PDFAssistantScreen: React.FC = () => {
-  const { user, language, saveItem, incrementAiUsage } = useApp();
+  const { user, language, saveItem, incrementAiUsage, cacheGeneratedMaterial } = useApp();
 
   const [documentText, setDocumentText] = useState<string>('');
   const [docTitle, setDocTitle] = useState<string>('');
@@ -115,6 +115,16 @@ The Carnot cycle is an ideal reversible cycle comprising two isothermal and two 
         setErrorMsg(res.error);
       } else {
         setResult(res.result);
+        // Auto-cache to IndexedDB for offline access
+        cacheGeneratedMaterial({
+          id: `pdf-${Date.now()}`,
+          title: `${docTitle || 'PDF Assistant'}: ${actionType.replace('_', ' ').toUpperCase()}`,
+          content: res.result,
+          type: 'pdf_summary',
+          subject: docTitle || 'PDF Document Analysis',
+          module: actionType,
+          generatedAt: new Date().toISOString(),
+        });
       }
     } catch (err: any) {
       setErrorMsg(err.message || 'Failed to process document');

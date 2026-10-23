@@ -102,3 +102,12 @@ Only the following required permissions are configured:
 <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
 <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 ```
+
+---
+
+## 6. Offline Storage Architecture (Hive / Isar Parity)
+
+- **Local Box Storage:** `hive_flutter` provides instant, zero-latency local caching of study materials, generated notes, exam answers, and solved photo solutions.
+- **Offline Retrieval:** If the device loses internet connectivity, the UI automatically falls back to local boxes, enabling complete offline study without network requests.
+- **Web Simulator Parity:** In the web simulator, this behavior is mirrored using **IndexedDB** (`EduGeniusOfflineDB`), providing full fidelity across both environments.
+

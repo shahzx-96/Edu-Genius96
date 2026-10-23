@@ -1,9 +1,11 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import {
   AppTheme,
+  CachedStudyMaterial,
   ChatConversation,
   ChatMessage,
   NotificationItem,
+  OfflineCacheStats,
   QuizHistoryItem,
   ResponseLanguage,
   SavedItem,
@@ -12,6 +14,15 @@ import {
   UserProfile,
 } from '../types';
 import { checkServerStatus } from '../services/api';
+import {
+  cacheStudyMaterial,
+  clearOfflineMaterials,
+  deleteCachedMaterial,
+  getAllCachedMaterials,
+  getOfflineCacheStats,
+  seedInitialOfflineCacheIfEmpty,
+  syncSavedItemsToIndexedDB,
+} from '../services/indexedDb';
 
 interface AppContextType {
   // User & Auth
@@ -85,6 +96,17 @@ interface AppContextType {
   aiModelName: string;
   aiRequestsUsedHour: number;
   incrementAiUsage: () => void;
+
+  // Offline Caching (IndexedDB) & Network State
+  isOnline: boolean;
+  simulateOffline: boolean;
+  toggleSimulateOffline: () => void;
+  cachedMaterials: CachedStudyMaterial[];
+  offlineStats: OfflineCacheStats;
+  cacheGeneratedMaterial: (material: Omit<CachedStudyMaterial, 'cachedAt'>) => Promise<void>;
+  deleteCachedStudyMaterial: (id: string) => Promise<void>;
+  clearAllOfflineCache: () => Promise<void>;
+  refreshOfflineMaterials: () => Promise<void>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -301,6 +323,82 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [isDemoMode, setIsDemoMode] = useState(true);
   const [aiModelName, setAiModelName] = useState('Checking AI status...');
   const [aiRequestsUsedHour, setAiRequestsUsedHour] = useState(4);
+
+  // Network & Offline State (IndexedDB)
+  const [isOnline, setIsOnline] = useState<boolean>(
+    typeof navigator !== 'undefined' ? navigator.onLine : true
+  );
+  const [simulateOffline, setSimulateOffline] = useState<boolean>(false);
+  const [cachedMaterials, setCachedMaterials] = useState<CachedStudyMaterial[]>([]);
+  const [offlineStats, setOfflineStats] = useState<OfflineCacheStats>({
+    totalItems: 0,
+    notesCount: 0,
+    examAnswersCount: 0,
+    photoSolutionsCount: 0,
+    pdfSummariesCount: 0,
+    chatsCount: 0,
+    estimatedBytes: 0,
+    lastSyncAt: null,
+  });
+
+  // Network online/offline event listeners
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+
+  const refreshOfflineMaterials = async () => {
+    try {
+      const materials = await getAllCachedMaterials();
+      const stats = await getOfflineCacheStats();
+      setCachedMaterials(materials);
+      setOfflineStats(stats);
+    } catch (e) {
+      console.error('Error refreshing offline cache:', e);
+    }
+  };
+
+  // Seed baseline offline materials and load cache on mount
+  useEffect(() => {
+    let active = true;
+    seedInitialOfflineCacheIfEmpty().then(() => {
+      if (active) {
+        refreshOfflineMaterials();
+      }
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const cacheGeneratedMaterial = async (
+    material: Omit<CachedStudyMaterial, 'cachedAt'>
+  ) => {
+    await cacheStudyMaterial(material);
+    await refreshOfflineMaterials();
+  };
+
+  const deleteCachedStudyMaterial = async (id: string) => {
+    await deleteCachedMaterial(id);
+    await refreshOfflineMaterials();
+  };
+
+  const clearAllOfflineCache = async () => {
+    await clearOfflineMaterials();
+    await refreshOfflineMaterials();
+  };
+
+  const toggleSimulateOffline = () => {
+    setSimulateOffline((prev) => !prev);
+  };
 
   // Sync to localStorage
   useEffect(() => {
@@ -529,6 +627,21 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       createdAt: new Date().toISOString(),
     };
     setSavedItems((prev) => [newItem, ...prev]);
+
+    // Also auto-cache into IndexedDB so it's guaranteed to be available offline
+    cacheGeneratedMaterial({
+      id,
+      title: item.title,
+      content: item.content,
+      type: item.type,
+      subject: item.subject,
+      module: item.module,
+      markType: item.markType,
+      generatedAt: new Date().toISOString(),
+      tags: item.tags,
+      offlineAccessCount: 1,
+    });
+
     return id;
   };
 
@@ -538,6 +651,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const deleteSavedItem = (id: string) => {
     setSavedItems((prev) => prev.filter((item) => item.id !== id));
+    deleteCachedStudyMaterial(id);
   };
 
   const addSubject = (name: string) => {
@@ -677,6 +791,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         aiModelName,
         aiRequestsUsedHour,
         incrementAiUsage,
+        // Offline Caching (IndexedDB)
+        isOnline: isOnline && !simulateOffline,
+        simulateOffline,
+        toggleSimulateOffline,
+        cachedMaterials,
+        offlineStats,
+        cacheGeneratedMaterial,
+        deleteCachedStudyMaterial,
+        clearAllOfflineCache,
+        refreshOfflineMaterials,
       }}
     >
       {children}

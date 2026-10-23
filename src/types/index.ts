@@ -100,3 +100,30 @@ export interface NotificationItem {
   time: string;
   read: boolean;
 }
+
+export interface CachedStudyMaterial {
+  id: string;
+  title: string;
+  content: string;
+  type: 'notes' | 'exam_answer' | 'photo_solution' | 'pdf_summary' | 'chat';
+  subject: string;
+  module?: string;
+  markType?: MarkType;
+  generatedAt: string;
+  cachedAt: string;
+  wordCount?: number;
+  tags?: string[];
+  offlineAccessCount?: number;
+  previewSnippet?: string;
+}
+
+export interface OfflineCacheStats {
+  totalItems: number;
+  notesCount: number;
+  examAnswersCount: number;
+  photoSolutionsCount: number;
+  pdfSummariesCount: number;
+  chatsCount: number;
+  estimatedBytes: number;
+  lastSyncAt: string | null;
+}

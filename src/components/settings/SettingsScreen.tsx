@@ -14,6 +14,10 @@ import {
   ExternalLink,
   ChevronRight,
   Info,
+  Database,
+  Wifi,
+  WifiOff,
+  HardDrive,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { AppTheme, ResponseLanguage } from '../../types';
@@ -29,6 +33,11 @@ export const SettingsScreen: React.FC = () => {
     logout,
     deleteAccount,
     aiRequestsUsedHour,
+    offlineStats,
+    clearAllOfflineCache,
+    simulateOffline,
+    toggleSimulateOffline,
+    isOnline,
   } = useApp();
 
   // Profile edit states
@@ -266,6 +275,72 @@ export const SettingsScreen: React.FC = () => {
           <p className="leading-relaxed">
             <strong>AI Accuracy Notice:</strong> AI-generated explanations, notes, and solutions may occasionally contain inaccuracies or approximations. Always verify critical engineering and examination proofs against standard university textbooks.
           </p>
+        </div>
+      </div>
+
+      {/* IndexedDB Offline Storage & Local Caching */}
+      <div className="p-4 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm space-y-3">
+        <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-700">
+          <div className="flex items-center gap-2">
+            <Database className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+            <span className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+              IndexedDB Offline Cache
+            </span>
+          </div>
+          <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-bold">
+            EduGeniusOfflineDB v1
+          </span>
+        </div>
+
+        <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+          Recently generated revision notes, solved equations, model exam answers, and summaries are saved directly to your device's IndexedDB engine for instant offline retrieval without an internet connection.
+        </p>
+
+        {/* Cache breakdown metrics */}
+        <div className="grid grid-cols-3 gap-2 text-center text-xs">
+          <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800">
+            <div className="text-[10px] text-slate-400 uppercase font-semibold">Total Items</div>
+            <div className="text-sm font-extrabold font-mono text-purple-600 dark:text-purple-400 mt-0.5">
+              {offlineStats.totalItems}
+            </div>
+          </div>
+
+          <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800">
+            <div className="text-[10px] text-slate-400 uppercase font-semibold">Local Storage</div>
+            <div className="text-sm font-extrabold font-mono text-slate-800 dark:text-slate-200 mt-0.5">
+              {(offlineStats.estimatedBytes / 1024).toFixed(1)} KB
+            </div>
+          </div>
+
+          <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800">
+            <div className="text-[10px] text-slate-400 uppercase font-semibold">Notes / Answers</div>
+            <div className="text-sm font-extrabold font-mono text-emerald-600 dark:text-emerald-400 mt-0.5">
+              {offlineStats.notesCount + offlineStats.examAnswersCount}
+            </div>
+          </div>
+        </div>
+
+        {/* Offline Testing & Cache Controls */}
+        <div className="pt-1 flex flex-col sm:flex-row gap-2">
+          <button
+            onClick={toggleSimulateOffline}
+            className={`flex-1 py-2 px-3 rounded-xl border text-xs font-semibold flex items-center justify-center gap-2 transition-colors ${
+              simulateOffline
+                ? 'bg-amber-500 text-white border-amber-600'
+                : 'border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-200 hover:border-purple-400'
+            }`}
+          >
+            {simulateOffline ? <WifiOff className="w-3.5 h-3.5" /> : <Wifi className="w-3.5 h-3.5" />}
+            <span>{simulateOffline ? 'Disable Offline Simulation' : 'Test Offline Mode (No Internet)'}</span>
+          </button>
+
+          <button
+            onClick={clearAllOfflineCache}
+            className="py-2 px-3 rounded-xl border border-rose-300 dark:border-rose-900/60 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors"
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+            <span>Clear IndexedDB Cache</span>
+          </button>
         </div>
       </div>
 

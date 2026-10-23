@@ -76,9 +76,17 @@ Welcome to **EduGenius AI**! This guide walks you through every feature of the a
 - Search instantly across titles and full body text.
 - Rename items or delete obsolete revisions with offline caching.
 
+### ⚡ 2.9 Offline Caching (IndexedDB & Hive Engine)
+- **Automatic Caching:** Every study material you generate (Short/Medium/Detailed notes, 2/5/10-mark exam answers, photo derivations, and PDF summaries) is automatically persisted in your local **IndexedDB** (`EduGeniusOfflineDB`).
+- **No Internet Required:** When your internet disconnects (or when traveling, during power cuts, or in no-network library basements), an **"Offline Study Mode Active"** banner appears.
+- **View All Cached Content:** Go to the **Saved** tab and click the **"IndexedDB Cache"** sub-tab. You can search, filter by subject or note type, and open full KaTeX LaTeX formulas and diagrams completely offline.
+- **Cache Management:** Visit **Settings** to check your total cached materials count, estimated storage footprint (~KB), and test offline mode with the simulator toggle or clear cache if needed.
+
 ---
 
 ## 3. Keyboard Shortcuts & Tips
 - Press **Enter** in the chat bar to quickly submit questions.
+- Click the **Online / Offline** button in the header toolbar to test how the app functions without active connectivity.
 - Switch between **Light** and **Dark** themes in Settings for comfortable late-night study sessions.
 - In Demo Mode, explore the pre-loaded academic samples to experience all 7 tools without an API key!
+

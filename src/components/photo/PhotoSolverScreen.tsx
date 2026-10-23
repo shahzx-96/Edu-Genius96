@@ -5,7 +5,7 @@ import { solvePhotoQuestion } from '../../services/api';
 import { LatexRenderer } from '../common/LatexRenderer';
 
 export const PhotoSolverScreen: React.FC = () => {
-  const { user, language, saveItem, incrementAiUsage } = useApp();
+  const { user, language, saveItem, incrementAiUsage, cacheGeneratedMaterial } = useApp();
 
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [extractedQuestion, setExtractedQuestion] = useState<string>('');
@@ -134,6 +134,16 @@ export const PhotoSolverScreen: React.FC = () => {
       } else {
         setExtractedQuestion(res.extractedQuestion);
         setSolution(res.solution);
+        // Auto-cache to IndexedDB for offline access
+        cacheGeneratedMaterial({
+          id: `photo-${Date.now()}`,
+          title: res.extractedQuestion ? res.extractedQuestion.slice(0, 50) + '...' : 'Photo Problem Solution',
+          content: `**Question:**\n${res.extractedQuestion}\n\n**Solution:**\n${res.solution}`,
+          type: 'photo_solution',
+          subject: 'STEM Problem Solving',
+          module: 'Step-by-Step Solutions',
+          generatedAt: new Date().toISOString(),
+        });
       }
     } catch (err: any) {
       setErrorMsg(err.message || 'Failed to solve photo problem.');

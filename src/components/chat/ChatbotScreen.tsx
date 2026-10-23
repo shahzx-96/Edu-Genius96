@@ -31,6 +31,7 @@ export const ChatbotScreen: React.FC = () => {
     language,
     saveItem,
     incrementAiUsage,
+    cacheGeneratedMaterial,
   } = useApp();
 
   const [inputText, setInputText] = useState('');
@@ -106,6 +107,17 @@ export const ChatbotScreen: React.FC = () => {
           subject: selectedSubject,
         };
         addMessageToActive(assistantMsg);
+
+        // Auto-cache to IndexedDB for offline access
+        cacheGeneratedMaterial({
+          id: assistantMsg.id,
+          title: `${selectedSubject}: ${query.slice(0, 45)}...`,
+          content: res.response,
+          type: 'chat',
+          subject: selectedSubject,
+          module: 'Study Chatbot',
+          generatedAt: new Date().toISOString(),
+        });
       }
     } catch (err: any) {
       setErrorMessage(err.message || 'Network failure. Please retry.');

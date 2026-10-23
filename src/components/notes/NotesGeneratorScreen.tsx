@@ -7,7 +7,7 @@ import { LatexRenderer } from '../common/LatexRenderer';
 import { NoteLength } from '../../types';
 
 export const NotesGeneratorScreen: React.FC = () => {
-  const { user, language, saveItem, incrementAiUsage } = useApp();
+  const { user, language, saveItem, incrementAiUsage, cacheGeneratedMaterial } = useApp();
 
   const [subject, setSubject] = useState('Operating Systems');
   const [moduleName, setModuleName] = useState('Module 2: CPU Scheduling & Process Synchronization');
@@ -108,6 +108,17 @@ export const NotesGeneratorScreen: React.FC = () => {
       } else {
         setGeneratedNotes(res.notes);
         setBookmarked(false);
+        // Auto-cache to IndexedDB for offline access
+        cacheGeneratedMaterial({
+          id: `notes-${Date.now()}`,
+          title: `${subject}: ${moduleName} (${noteLength})`,
+          content: res.notes,
+          type: 'notes',
+          subject,
+          module: moduleName,
+          wordCount: res.wordCount,
+          generatedAt: new Date().toISOString(),
+        });
       }
     } catch (err: any) {
       setErrorMsg(err.message || 'Failed to generate study notes');

@@ -211,6 +211,7 @@ Contemporary higher education and competitive examination preparation face syste
 3. **Photo Solver OCR & Vision Pipeline:** High-resolution camera captures are downsampled on-device to under 1200px width/height and compressed to JPEG quality 0.82 to satisfy the 5MB ceiling. Gemini Vision transcribes text and formulas into LaTeX.
 4. **On-Device PDF Generation:** Notes generated across Short, Medium, and Detailed modes can be instantly formatted into A4 PDF documents with custom header branding, word-wrapped paragraphs, page number pagination, and timestamped watermarks.
 5. **Rate Limiting & Server Hardening:** Cloud Functions enforce a strict quota of 30 requests per user per hour via atomic Firestore transactions, returning a graceful HTTP 429 response when limits are approached.
+6. **Offline Caching Engine (IndexedDB & Hive Parity):** Employs an offline caching architecture with IndexedDB (`EduGeniusOfflineDB` v1, mirroring native Android Hive/Isar storage). Every generated study note (Short, Medium, Detailed), exam answer (2, 5, 10 marks), photo OCR derivation, and PDF summary is automatically cached into dedicated structured object stores with secondary indexing (`type`, `subject`, `cachedAt`). Offline students can search, review, and render full KaTeX LaTeX mathematics without network connectivity.
 
 ---
 
@@ -238,6 +239,7 @@ Each module was systematically verified against functional requirements and phys
 | **TC-16** | Saved Content | Subject creation, rename, delete, search | Persists across app reboots; full search matches title & body text | **PASS** |
 | **TC-17** | Rate Limiter | Exceeding 30 requests/hour | Returns: "Too many requests. Please wait a moment and try again." | **PASS** |
 | **TC-18** | Security | Verify API key isolation | Zero API keys or secrets stored in mobile client bundle or Git repo | **PASS** |
+| **TC-19** | Offline Caching | Disconnect network / toggle simulated offline mode | Instant retrieval and full KaTeX rendering of cached notes and answers from IndexedDB | **PASS** |
 
 ---
 

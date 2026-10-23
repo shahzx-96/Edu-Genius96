@@ -6,7 +6,7 @@ import { LatexRenderer } from '../common/LatexRenderer';
 import { MarkType } from '../../types';
 
 export const ExamAnswerScreen: React.FC = () => {
-  const { user, language, saveItem, incrementAiUsage } = useApp();
+  const { user, language, saveItem, incrementAiUsage, cacheGeneratedMaterial } = useApp();
 
   const [question, setQuestion] = useState('Explain the Von Neumann Architecture with its functional units and bottleneck');
   const [markType, setMarkType] = useState<MarkType>('5-mark');
@@ -58,6 +58,17 @@ export const ExamAnswerScreen: React.FC = () => {
       } else {
         setAnswer(res.answer);
         setDisclaimer(res.disclaimer || 'AI-generated. Verify against your textbook before use.');
+        // Auto-cache to IndexedDB for offline access
+        cacheGeneratedMaterial({
+          id: `exam-${Date.now()}`,
+          title: `${markType} Answer: ${question.slice(0, 45)}...`,
+          content: `${res.answer}\n\n${res.disclaimer || disclaimer}`,
+          type: 'exam_answer',
+          subject,
+          module: 'University Exam Answers',
+          markType,
+          generatedAt: new Date().toISOString(),
+        });
       }
     } catch (err: any) {
       setErrorMsg(err.message || 'Failed to generate exam answer');
