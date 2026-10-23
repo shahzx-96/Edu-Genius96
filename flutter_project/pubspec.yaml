@@ -1,0 +1,58 @@
+name: edugenius_ai
+description: "Your Personal AI Teacher in Your Pocket. AI-powered academic learning, notes generator, photo math solver, exam prep, quizzes, and smart study planner."
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.3.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Firebase Core & Auth
+  firebase_core: ^2.30.0
+  firebase_auth: ^4.19.0
+  cloud_firestore: ^4.17.0
+  firebase_storage: ^11.7.0
+  cloud_functions: ^4.7.0
+  google_sign_in: ^6.2.1
+
+  # Local Offline Storage (Hive)
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+
+  # Notifications (Android 13+ POST_NOTIFICATIONS)
+  flutter_local_notifications: ^17.1.0
+  timezone: ^0.9.2
+
+  # Math & LaTeX Formula Rendering
+  flutter_math_fork: ^0.7.2
+  flutter_markdown: ^0.7.2
+
+  # Device Hardware (Camera & Image compression)
+  image_picker: ^1.1.0
+  flutter_image_compress: ^2.3.0
+  file_picker: ^8.0.0
+
+  # PDF Generation on Device
+  pdf: ^3.10.8
+  printing: ^5.13.0
+
+  # UI & Animations
+  provider: ^6.1.2
+  google_fonts: ^6.2.1
+  flutter_spinkit: ^5.2.1
+  intl: ^0.19.0
+  shared_preferences: ^2.2.3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/
+    - assets/icons/

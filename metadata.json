@@ -1,0 +1,8 @@
+{
+  "name": "EduGenius AI",
+  "description": "Your Personal AI Teacher in Your Pocket. AI-powered academic learning, notes generator, photo question solver, exam prep, quizzes, and smart study planner.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

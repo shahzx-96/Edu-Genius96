@@ -1,0 +1,58 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // User Profile: Only user can read and modify their own document
+    match /users/{userId} {
+      allow read, write: if isOwner(userId);
+      allow create: if isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // Chat Conversations & Messages sub-collection
+    match /users/{userId}/conversations/{conversationId} {
+      allow read, write, delete: if isOwner(userId);
+
+      match /messages/{messageId} {
+        allow read, write, delete: if isOwner(userId);
+      }
+    }
+
+    // Saved Academic Content (Notes, Exam Answers, Photo Solutions)
+    match /users/{userId}/saved_content/{itemId} {
+      allow read, write, delete: if isOwner(userId);
+    }
+
+    // Quiz History & Results
+    match /users/{userId}/quiz_history/{quizId} {
+      allow read, write, delete: if isOwner(userId);
+    }
+
+    // Study Planner: Subjects & Tasks
+    match /users/{userId}/study_subjects/{subjectId} {
+      allow read, write, delete: if isOwner(userId);
+    }
+
+    match /users/{userId}/study_tasks/{taskId} {
+      allow read, write, delete: if isOwner(userId);
+    }
+
+    // Cached Extracted Document Text (per user session)
+    match /users/{userId}/document_cache/{docId} {
+      allow read, write, delete: if isOwner(userId);
+    }
+
+    // Default deny all other paths
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
